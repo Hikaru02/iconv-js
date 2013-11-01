@@ -13,7 +13,7 @@ iconv-js - pure javascript character encoding conversion
 
 ## Supported encodings
 
-*   SJIS <-> UTF8
+*   SJIS-win <-> UTF8
 
 ## TODO
 
