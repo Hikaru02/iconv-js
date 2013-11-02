@@ -1,4 +1,13 @@
 {
-	"name": "iconv-js",
-	"version": "0.1.5"
+	"name"        : "iconv-js",
+	"version"     : "0.1.5",
+	"license"     : "public domain",
+	"author"      : "Hikaru02",
+	"description" : "Convert character encodings in pure javascript.",
+	"keywords"    : ["iconv", "convert", "charset", "shift-jis", "sjis"],
+	"main"        : "./index.js",
+	"repository"  : {
+    	"type"        : "git",
+    	"url"         : "https://github.com/Hikaru02/iconv-js.git"
+ 	}
 }
