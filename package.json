@@ -1,7 +1,7 @@
 {
 	"name"        : "iconv-js",
 	"description" : "Convert character encodings in pure javascript.",
-	"version"     : "0.2.4",
+	"version"     : "0.2.5",
 	"license"     : "public domain",
 
 	"keywords"    : ["iconv", "convert", "charset", "shift-jis", "sjis"],

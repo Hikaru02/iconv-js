@@ -32,13 +32,13 @@ function conv(x, func) {
 
 	if (typeof x === 'object') {
 		if (x instanceof ArrayBuffer) {
-			return func(x)
+			return func(x, false)
 
 		} else if (HAS_NODEJS_API && Buffer.isBuffer(x)) {
-			return new Buffer(new Uint8Array(func(x.toArrayBuffer())))
+			return func(x, true)
 
 		} else if (ArrayBuffer.isView(x)) {
-			func(x.buffer)
+			func(x.buffer, false)
 			return x
 		}
 
@@ -55,16 +55,21 @@ function conv(x, func) {
 
 
 
-function SJIStoUTF8(sjis_buf) {
-
-	var sjis_len = sjis_buf.byteLength
-	//sjis_buf = Buffer.concat([sjis_buf, new Buffer(1)])
+function SJIStoUTF8(sjis_buf, UES_NODE_BUFFR) {
 
 	var uni_code = 0
-	var utf8_buf = new ArrayBuffer(sjis_len*3) // 要検討（2~6）
 
-	var sjisView = new Uint8Array(sjis_buf)
-	var utf8View = new Uint8Array(utf8_buf)
+	if (UES_NODE_BUFFR) {
+		var sjis_len = sjis_buf.length
+		var sjisView = sjis_buf
+		var utf8_buf = new Buffer(sjis_len*3) // 要検討（2~6）
+		var utf8View = utf8_buf
+	} else {
+		var sjis_len = sjis_buf.byteLength
+		var sjisView = new Uint8Array(sjis_buf)
+		var utf8_buf = new ArrayBuffer(sjis_len*3) // 要検討（2~6）
+		var utf8View = new Uint8Array(utf8_buf)
+	}
 
 
 	var sjis_i = 0, utf8_i = 0
@@ -128,17 +133,24 @@ function SJIStoUTF8(sjis_buf) {
 
 
 
-function UTF8toSJIS(utf8_buf) {
+function UTF8toSJIS(utf8_buf, UES_NODE_BUFFR) {
 
-	var utf8_len = utf8_buf.byteLength
+	
 
 	var uni_code = 0, sjis_code = 0
 	var index = 0
 
-	var sjis_buf = new ArrayBuffer(utf8_len*3) // 要検討（2~6）
-	
-	var utf8View = new Uint8Array(utf8_buf)
-	var sjisView = new Uint8Array(sjis_buf)
+	if (UES_NODE_BUFFR) {
+		var utf8_len = utf8_buf.length
+		var utf8View = utf8_buf
+		var sjis_buf = new Buffer(utf8_len*3) // 要検討（2~6）
+		var sjisView = sjis_buf
+	} else {
+		var utf8_len = utf8_buf.byteLength
+		var utf8View = new Uint8Array(utf8_buf)
+		var sjis_buf = new ArrayBuffer(utf8_len*3) // 要検討（2~6）
+		var sjisView = new Uint8Array(sjis_buf)
+	}
 
 
 	//function indexOf(table, code) { for (var i = 0; i < table.length; ++i) if (table[i] === code) return i; return -1 }
