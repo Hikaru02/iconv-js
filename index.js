@@ -55,11 +55,11 @@ function conv(x, func) {
 
 
 
-function SJIStoUTF8(sjis_buf, UES_NODE_BUFFR) {
+function SJIStoUTF8(sjis_buf, UES_NODEJS_BUFFR) {
 
 	var uni_code = 0
 
-	if (UES_NODE_BUFFR) {
+	if (UES_NODEJS_BUFFR) {
 		var sjis_len = sjis_buf.length
 		var sjisView = sjis_buf
 		var utf8_buf = new Buffer(sjis_len*3) // 要検討（2~6）
@@ -133,14 +133,14 @@ function SJIStoUTF8(sjis_buf, UES_NODE_BUFFR) {
 
 
 
-function UTF8toSJIS(utf8_buf, UES_NODE_BUFFR) {
+function UTF8toSJIS(utf8_buf, UES_NODEJS_BUFFR) {
 
 	
 
 	var uni_code = 0, sjis_code = 0
 	var index = 0
 
-	if (UES_NODE_BUFFR) {
+	if (UES_NODEJS_BUFFR) {
 		var utf8_len = utf8_buf.length
 		var utf8View = utf8_buf
 		var sjis_buf = new Buffer(utf8_len*3) // 要検討（2~6）
