@@ -69,21 +69,21 @@ function SJIStoUTF8(sjis_buf) {
 
 	var sjis_i = 0, utf8_i = 0
 
-	while (sjis_i < sjis_len-1) { //　最後の１つ前のオクテットまでの処理
+	while (sjis_i < sjis_len) {
 	
 		// sjis -> uni
 		var sjis_code = sjisView[sjis_i]
 
-		if (sjis_code === 0x7E)
-			uni_code = 0x203E
-		else if (sjis_code < 0x80)
-			uni_code = sjis_code
-		else if (sjis_code < 0xA0)
+		if (sjis_code === 0x7E) uni_code = 0x203E
+		else if (sjis_code < 0x80) uni_code = sjis_code
+		else if (sjis_code < 0xA0) {
+			if (sjis_i === sjis_len-1) continue
 			uni_code = SJIS_UNI_TABLE_1[(sjisView[sjis_i]<<8|sjisView[++sjis_i]) - 0x8140]
-		else if (sjis_code < 0xE0)
-			uni_code = SJIS_UNI_TABLE_2[sjis_code - 0xA0]
-		else
+		} else if (sjis_code < 0xE0) uni_code = SJIS_UNI_TABLE_2[sjis_code - 0xA0]
+		else {
+			if (sjis_i === sjis_len-1) continue
 			uni_code = SJIS_UNI_TABLE_3[(sjisView[sjis_i]<<8|sjisView[++sjis_i]) - 0xE040]
+		}
 
 		++sjis_i
 
@@ -117,55 +117,6 @@ function SJIStoUTF8(sjis_buf) {
 			utf8View[utf8_i++] = uni_code&0x3F|0x80
 		}
 
-	}
-
-	// 最後のオクテットが余った場合の処理
-	L: if (sjis_i === sjis_len-1) {
-		// sjis -> uni
-		var sjis_code = sjisView[sjis_i]
-
-		if (sjis_code === 0x7E)
-			uni_code = 0x203E
-		else if (sjis_code < 0x80)
-			uni_code = sjis_code
-		else if (sjis_code < 0xA0)　//異常なコード
-			break L
-		else if (sjis_code < 0xE0)
-			uni_code = SJIS_UNI_TABLE_2[sjis_code - 0xA0]
-		else　//異常なコード
-			break L
-
-		//++sjis_i
-
-		// uni -> utf8
-		if (uni_code < 0x80) {
-			utf8View[utf8_i++] = uni_code
-		} else if (uni_code < 0x800) {
-			utf8View[utf8_i++] = uni_code>>>6|0xC0
-			utf8View[utf8_i++] = uni_code&0x3F|0x80
-		} else if (uni_code < 0x10000) {
-			utf8View[utf8_i++] = uni_code>>>12|0xE0
-			utf8View[utf8_i++] = uni_code>>>6&0x3F|0x80
-			utf8View[utf8_i++] = uni_code&0x3F|0x80
-		} else if (uni_code < 0x200000) {
-			utf8View[utf8_i++] = uni_code>>>18|0xF0
-			utf8View[utf8_i++] = uni_code>>>12&0x3F|0x80
-			utf8View[utf8_i++] = uni_code>>>6&0x3F|0x80
-			utf8View[utf8_i++] = uni_code&0x3F|0x80
-		} else if (uni_code < 0x4000000) {
-			utf8View[utf8_i++] = uni_code>>>24|0xF8
-			utf8View[utf8_i++] = uni_code>>>18&0x3F|0x80
-			utf8View[utf8_i++] = uni_code>>>12&0x3F|0x80
-			utf8View[utf8_i++] = uni_code>>>6&0x3F|0x80
-			utf8View[utf8_i++] = uni_code&0x3F|0x80
-		} else {
-			utf8View[utf8_i++] = uni_code>>>30|0xFC
-			utf8View[utf8_i++] = uni_code>>>24&0x3F|0x80
-			utf8View[utf8_i++] = uni_code>>>18&0x3F|0x80
-			utf8View[utf8_i++] = uni_code>>>12&0x3F|0x80
-			utf8View[utf8_i++] = uni_code>>>6&0x3F|0x80
-			utf8View[utf8_i++] = uni_code&0x3F|0x80
-		}
 	}
 
 	return utf8_buf.slice(0, utf8_i)
