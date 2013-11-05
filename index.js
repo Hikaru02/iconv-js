@@ -4,13 +4,12 @@ iconv_js = (function (iconv_js) { 'use strict'
 
 
 
-	var log = console.log.bind(console)
+	//var log = console.log.bind(console)
 
 
 	var HAS_NODEJS_API  = typeof module != 'undefined' && typeof Buffer != 'undefined'
 	var HAS_BOM_DOM_API = typeof window != 'undefined'
 
-	log(HAS_NODEJS_API)
 
 
 
@@ -32,31 +31,25 @@ iconv_js = (function (iconv_js) { 'use strict'
 
 
 
-//main
-	if (HAS_NODEJS_API) {
-		init()
-	} else {
-		iconv_js.init = init
-	}
-	return iconv_js
 
 
-
+//init
 
 	var SJIS_UNI_TABLE_1, SJIS_UNI_TABLE_2, SJIS_UNI_TABLE_3, SJIS_UNI_TABLE_SP
+
 
 function init() {
 
 	if (HAS_NODEJS_API) {
-		var SJIS_UNI_TABLES = require('./table/sjis-uni.js')
+		var SJIS_UNI_TABLE = require('./table/sjis-uni.js')
 	} else {
-		var SJIS_UNI_TABLES = iconv_js.SJIS_UNI_TABLES
+		var SJIS_UNI_TABLE = iconv_js.SJIS_UNI_TABLE
 	}
 
-	SJIS_UNI_TABLE_1  = SJIS_UNI_TABLES[0]
-	SJIS_UNI_TABLE_2  = SJIS_UNI_TABLES[1]
-	SJIS_UNI_TABLE_3  = SJIS_UNI_TABLES[2]
-	SJIS_UNI_TABLE_SP = SJIS_UNI_TABLES[3]
+	SJIS_UNI_TABLE_1  = SJIS_UNI_TABLE[0]
+	SJIS_UNI_TABLE_2  = SJIS_UNI_TABLE[1]
+	SJIS_UNI_TABLE_3  = SJIS_UNI_TABLE[2]
+	SJIS_UNI_TABLE_SP = SJIS_UNI_TABLE[3]
 
 	var exports = {
 		fromSJIS: fromSJIS,
@@ -74,6 +67,18 @@ function init() {
 
 
 
+//main
+	if (HAS_NODEJS_API) {
+		init()
+	} else {
+		iconv_js.init = init
+	}
+	return iconv_js
+
+
+
+
+//
 
 function conv(x, func) {
 
