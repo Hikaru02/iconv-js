@@ -19,7 +19,7 @@ iconv-js - pure javascript character encoding conversion
     <script src="iconv-js/table/sjis-uni.js"></script>
     <script>
 
-    var iconv = iconv_js.init()
+    var iconv = iconv_js.init();
             
     // Convert from SJIS arraybuffer to UTF8 buffer.
     utf8_arraybuffer = iconv.fromSJIS(sjis_arraybuffer);
@@ -33,7 +33,7 @@ iconv-js - pure javascript character encoding conversion
 
 ## Supported encodings
 
-*   SJIS-win <-> UTF8
+*   SJIS(win) <-> UTF8
 
 ## TODO
 
