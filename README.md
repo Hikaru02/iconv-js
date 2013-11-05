@@ -3,6 +3,8 @@ iconv-js - pure javascript character encoding conversion
 
 ## Usage
 
+#### Node.js
+    
     var iconv = require('iconv-js');
     
     // Convert from SJIS buffer to UTF8 buffer.
@@ -10,6 +12,24 @@ iconv-js - pure javascript character encoding conversion
     
     // Convert from UTF8 buffer to SJIS buffer.
     sjis_buffer = iconv.toSJIS(utf8_buffer);
+        
+#### Browser
+    
+    <script src="./node_modules/iconv-js/index.js"></script>
+    <script src="./node_modules/iconv-js/table/sjis-uni.js"></script>
+    <script>
+
+    var iconv = iconv_js.init()
+            
+    // Convert from SJIS arraybuffer to UTF8 buffer.
+    utf8_buffer = iconv.fromSJIS(sjis_arraybuffer);
+    
+    // Convert from UTF8 arraybuffer to SJIS buffer.
+    sjis_buffer = iconv.toSJIS(utf8_arraybuffer);
+
+    </script>
+        
+    
 
 ## Supported encodings
 
