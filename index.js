@@ -1,27 +1,74 @@
-'use strict'
-//var log = console.log.bind(console)
-
-var HAS_NODEJS_API = true
-var HAS_BOM_DOM_API = false
-
-var SJIS_UNI_TABLES = require('./table/sjis-uni.js')
-var SJIS_UNI_TABLE_1 = SJIS_UNI_TABLES[0]
-var SJIS_UNI_TABLE_2 = SJIS_UNI_TABLES[1]
-var SJIS_UNI_TABLE_3 = SJIS_UNI_TABLES[2]
-var SJIS_UNI_TABLE_SP = SJIS_UNI_TABLES[3]
+if (typeof iconv_js != 'object') var iconv_js = {}
+iconv_js = (function (iconv_js) { 'use strict'
+//----------------------------------------------------------
 
 
 
+	var log = console.log.bind(console)
 
 
-ArrayBuffer.isView = ArrayBuffer.isView || function (x) { // typeof x shuld be 'object'
-	return x.constructor.hasOwnProperty('BYTES_PER_ELEMENT') //簡易実装
-}
+	var HAS_NODEJS_API  = typeof module != 'undefined' && typeof Buffer != 'undefined'
+	var HAS_BOM_DOM_API = typeof window != 'undefined'
 
-if (HAS_NODEJS_API) {
-	Buffer.prototype.toArrayBuffer = Buffer.prototype.toArrayBuffer || function () {
-		return new Uint8Array(this).buffer
+	log(HAS_NODEJS_API)
+
+
+
+//ES6 APIs
+	Object.assign = Object.assign || function assign(target, source) {
+		Object.keys(source).forEach(function (key) {
+			target[key] = source[key]
+		})
 	}
+
+	ArrayBuffer.isView = ArrayBuffer.isView || function isView(x) {
+		return typeof x == 'object' && x.constructor.hasOwnProperty('BYTES_PER_ELEMENT')
+	}
+
+
+//util
+	
+
+
+
+
+//main
+	if (HAS_NODEJS_API) {
+		init()
+	} else {
+		iconv_js.init = init
+	}
+	return iconv_js
+
+
+
+
+	var SJIS_UNI_TABLE_1, SJIS_UNI_TABLE_2, SJIS_UNI_TABLE_3, SJIS_UNI_TABLE_SP
+
+function init() {
+
+	if (HAS_NODEJS_API) {
+		var SJIS_UNI_TABLES = require('./table/sjis-uni.js')
+	} else {
+		var SJIS_UNI_TABLES = iconv_js.SJIS_UNI_TABLES
+	}
+
+	SJIS_UNI_TABLE_1  = SJIS_UNI_TABLES[0]
+	SJIS_UNI_TABLE_2  = SJIS_UNI_TABLES[1]
+	SJIS_UNI_TABLE_3  = SJIS_UNI_TABLES[2]
+	SJIS_UNI_TABLE_SP = SJIS_UNI_TABLES[3]
+
+	var exports = {
+		fromSJIS: fromSJIS,
+		toSJIS: toSJIS,
+	}
+
+	if (HAS_NODEJS_API) {
+		module.exports = exports
+	} else {
+		Object.assign(iconv_js, exports)
+	}
+	return iconv_js
 }
 
 
@@ -38,11 +85,9 @@ function conv(x, func) {
 			return func(x, true)
 
 		} else if (ArrayBuffer.isView(x)) {
-			func(x.buffer, false)
-			return x
-		}
+			return new x.constructor(func(x.buffer, false))
 
-		throw 'Unexpected Object Kind'
+		} else throw 'Unexpected Object Kind'
 
 	} else if (typeof x === 'string') {
 		throw 'Not Suported Yet'
@@ -51,6 +96,16 @@ function conv(x, func) {
 }
 
 
+
+
+
+function fromSJIS(x) {
+	return conv(x, SJIStoUTF8)
+}
+
+function toSJIS(x) {
+	return conv(x, UTF8toSJIS)
+}
 
 
 
@@ -79,15 +134,23 @@ function SJIStoUTF8(sjis_buf, UES_NODEJS_BUFFR) {
 		// sjis -> uni
 		var sjis_code = sjisView[sjis_i]
 
-		if (sjis_code === 0x7E) uni_code = 0x203E
-		else if (sjis_code < 0x80) uni_code = sjis_code
-		else if (sjis_code < 0xA0) {
-			if (sjis_i === sjis_len-1) continue
+		if (sjis_code === 0x7E) {
+			uni_code = 0x203E
+
+		} else if (sjis_code < 0x80) {
+			uni_code = sjis_code
+
+		} else if (sjis_code < 0xA0) {
+			if (sjis_i === sjis_len-1) break
 			uni_code = SJIS_UNI_TABLE_1[(sjisView[sjis_i]<<8|sjisView[++sjis_i]) - 0x8140]
-		} else if (sjis_code < 0xE0) uni_code = SJIS_UNI_TABLE_2[sjis_code - 0xA0]
-		else {
-			if (sjis_i === sjis_len-1) continue
+
+		} else if (sjis_code < 0xE0) {
+			uni_code = SJIS_UNI_TABLE_2[sjis_code - 0xA0]
+
+		} else {
+			if (sjis_i === sjis_len-1) break
 			uni_code = SJIS_UNI_TABLE_3[(sjisView[sjis_i]<<8|sjisView[++sjis_i]) - 0xE040]
+
 		}
 
 		++sjis_i
@@ -123,6 +186,7 @@ function SJIStoUTF8(sjis_buf, UES_NODEJS_BUFFR) {
 		}
 
 	}
+
 
 	return utf8_buf.slice(0, utf8_i)
 
@@ -184,7 +248,7 @@ function UTF8toSJIS(utf8_buf, UES_NODEJS_BUFFR) {
 			uni_code = (utf8_code&0x3)<<24 | (utf8View[++utf8_i]&0x3F)<<18 | (utf8View[++utf8_i]&0x3F)<<12 | (utf8View[++utf8_i]&0x3F)<<6 | (utf8View[++utf8_i]&0x3F)
 		else if((utf8_code&0xFE) === 0xFC)
 			uni_code = (utf8_code&0x1)<<30 | (utf8View[++utf8_i]&0x3F)<<24 | (utf8View[++utf8_i]&0x3F)<<18 | (utf8View[++utf8_i]&0x3F)<<12 | (utf8View[++utf8_i]&0x3F)<<6 | (utf8View[++utf8_i]&0x3F)
-		else continue
+		else {++utf8_i; continue}
 
 		++utf8_i
 
@@ -201,7 +265,7 @@ function UTF8toSJIS(utf8_buf, UES_NODEJS_BUFFR) {
 			sjis_code = index + 0x8140
 		else if ((index = SJIS_UNI_TABLE_3.indexOf(uni_code)) >= 0)
 			sjis_code = index + 0xE040
-		else continue
+		else {++utf8_i; continue}
 
 
 		if (sjis_code < 0x80) {
@@ -218,6 +282,7 @@ function UTF8toSJIS(utf8_buf, UES_NODEJS_BUFFR) {
 
 	}
 
+	
 	return sjis_buf.slice(0, sjis_i)
 
 }
@@ -233,17 +298,8 @@ function KutenToSJIS(ku, ten) {
 
 
 
-function fromSJIS(x) {
-	return conv(x, SJIStoUTF8)
-}
-
-function toSJIS(x) {
-	return conv(x, UTF8toSJIS)
-}
 
 
 
-module.exports = {
-	fromSJIS: fromSJIS,
-	toSJIS: toSJIS,
-}
+//----------------------------------------------------------
+})(iconv_js);
