@@ -15,8 +15,8 @@ iconv-js - pure javascript character encoding conversion
         
 #### Browser
     
-    <script src="./node_modules/iconv-js/index.js"></script>
-    <script src="./node_modules/iconv-js/table/sjis-uni.js"></script>
+    <script src="iconv-js/index.js"></script>
+    <script src="iconv-js/table/sjis-uni.js"></script>
     <script>
 
     var iconv = iconv_js.init()
