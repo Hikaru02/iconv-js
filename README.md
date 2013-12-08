@@ -4,6 +4,8 @@ iconv-js - pure javascript character encoding conversion
 ## Usage
 
 #### Node.js
+
+**I recommend that you use [jconv](https://github.com/narirou/jconv) instead of this module.**
     
     var iconv = require('iconv-js');
     
@@ -12,9 +14,13 @@ iconv-js - pure javascript character encoding conversion
     
     // Convert from UTF8 buffer to SJIS buffer.
     sjis_buffer = iconv.toSJIS(utf8_buffer);
+    
+    
         
 #### Browser
-    
+
+**I recommend that you use [Web Encoding API](http://encoding.spec.whatwg.org/) instead of this module.**
+
     <script src="iconv-js/index.js"></script>
     <script src="iconv-js/table/sjis-uni.js"></script>
     <script>
@@ -35,6 +41,3 @@ iconv-js - pure javascript character encoding conversion
 
 *   SJIS(win) <-> UTF8
 
-## TODO
-
-*   Add more encodings.
