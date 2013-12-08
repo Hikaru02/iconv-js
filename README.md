@@ -1,8 +1,14 @@
 iconv-js - pure javascript character encoding conversion
 ====================================================================
 
-## Usage
 
+## Supported encodings
+
+*   SJIS(win) <-> UTF8
+  
+
+## Usage
+  
 #### Node.js
 
 **I recommend that you use [jconv](https://github.com/narirou/jconv) instead of this module.**
@@ -34,10 +40,4 @@ iconv-js - pure javascript character encoding conversion
     sjis_arraybuffer = iconv.toSJIS(utf8_arraybuffer);
 
     </script>
-        
-    
-
-## Supported encodings
-
-*   SJIS(win) <-> UTF8
 
